@@ -1,0 +1,16 @@
+Install xampp.
+
+start apache2 and mysql in xampp.
+
+place the log-user-request folder in htdocs.
+
+create a Database "userlogs" in phpmyadmin
+
+import userlogs.sql in phpmyadmin
+
+go to below url and register user
+http://localhost/log-user-request/register.php
+
+I have already created few users with password is "janmitha"
+
+after register, login and send tender request with valid tenderID of particular department and get all the tender requests done by all users.

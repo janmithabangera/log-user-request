@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 03, 2023 at 08:17 AM
+-- Generation Time: Oct 03, 2023 at 02:47 PM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.0.28
 
@@ -136,19 +136,21 @@ CREATE TABLE `user_tender_requests` (
   `sent_at` datetime DEFAULT NULL,
   `edit_user_id` int(11) DEFAULT NULL,
   `allotted_at` datetime DEFAULT NULL,
-  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `reminder_days` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 --
 -- Dumping data for table `user_tender_requests`
 --
 
-INSERT INTO `user_tender_requests` (`id`, `user_id`, `tender_id`, `created_at`, `status`, `tender_no`, `name_of_work`, `file_name`, `reference_code`, `section_id`, `sent_at`, `edit_user_id`, `allotted_at`, `updated_at`) VALUES
-(1, 1, 4, '2023-10-02 19:33:36', 'Sent', 'jhxbscb', 'construction', '169044613763.pdf', '2256789', '9', '2023-10-03 06:39:36', NULL, NULL, '2023-10-03 10:09:36'),
-(2, 1, 2, '2023-10-03 05:48:11', 'Sent', 'cm1/ui/567/89', 'machine works', '168968479935.pdf', '2256789', '6', '2023-10-03 07:52:23', NULL, NULL, '2023-10-03 11:22:23'),
-(3, 1, 5, '2023-10-03 05:48:54', 'Requested', NULL, NULL, NULL, NULL, '', NULL, NULL, NULL, '2023-10-03 11:18:54'),
-(4, 1, 2, '2023-10-03 05:49:55', 'Requested', NULL, NULL, NULL, NULL, '', NULL, NULL, NULL, '2023-10-03 11:19:55'),
-(5, 1, 4, '2023-10-03 05:58:06', 'Sent', 'cm1/ui/567/89', 'lighting', '168968479937.pdf', 'promo8765', '10', '2023-10-03 07:58:36', NULL, NULL, '2023-10-03 11:28:36');
+INSERT INTO `user_tender_requests` (`id`, `user_id`, `tender_id`, `created_at`, `status`, `tender_no`, `name_of_work`, `file_name`, `reference_code`, `section_id`, `sent_at`, `edit_user_id`, `allotted_at`, `updated_at`, `reminder_days`) VALUES
+(1, 1, 4, '2023-10-02 19:33:36', 'Allotted', 'jhxbscb', 'construction', '169044613763.pdf', '2256789', '9', '2023-10-03 06:39:36', 2, '2023-10-03 13:44:58', '2023-10-03 16:09:22', 10),
+(2, 1, 2, '2023-10-03 05:48:11', 'Allotted', 'cm1/ui/567/89', 'machine works', '168968479935.pdf', '2256789', '6', '2023-10-03 07:52:23', 3, '2023-10-03 17:16:07', '2023-10-03 17:16:07', 0),
+(3, 1, 5, '2023-10-03 05:48:54', 'Sent', 'cm1/ui/567/hu8.kk', '', 'iphone12.jpg', 'promo123', '11', '2023-10-03 17:53:41', NULL, NULL, '2023-10-03 17:53:41', NULL),
+(4, 2, 5, '2023-10-03 11:41:27', 'Allotted', 'cm1/ui/567', '', '16896847993776.pdf', '', '6', '2023-10-03 17:12:12', 3, '2023-10-03 17:13:36', '2023-10-03 17:13:36', 0),
+(5, 2, 5, '2023-10-03 12:13:58', 'Requested', NULL, '', NULL, '', '', NULL, NULL, NULL, '2023-10-03 18:13:41', NULL),
+(6, 2, 2, '2023-10-03 12:37:49', 'Requested', NULL, '', NULL, '', '', NULL, NULL, NULL, '2023-10-03 18:13:52', NULL);
 
 --
 -- Indexes for dumped tables
@@ -217,7 +219,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `user_tender_requests`
 --
 ALTER TABLE `user_tender_requests`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

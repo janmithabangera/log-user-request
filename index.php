@@ -43,16 +43,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $formError = "Enter valid TenderID/Select valid department";
             } else {
                 $userID = $_SESSION["id"];
-                $sql = "INSERT INTO userrequestlogs (user_id, tender_id) VALUES (?, ?)";
+                $sql = "INSERT INTO user_tender_requests (user_id, tender_id,status) VALUES (?, ?,'Requested')";
                 $stmt = $link->prepare($sql);
                 $stmt->bind_param("ss", $userID, $tenderIDRes['id']);
                 if ($stmt->execute()) {
-                    echo "<script>" . "window.location.href='./showRequests.php';" . "</script>";
+                    echo "<script>" . "window.location.href='./tender-requests/';" . "</script>";
                 }
                 echo "<script>" . "alert('Oops! Something went wrong. Please try again later.');" . "</script>";
             }
         }
-        echo "<script>" . "alert('Oops! Something went wrong. Please try again later.');" . "</script>";
     }
     # Close connection
     mysqli_close($link);
@@ -80,6 +79,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <div class="col-lg-5 text-center">
                 <h4 class="my-4">Hello, <?= htmlspecialchars($_SESSION["username"]); ?></h4>
                 <a href="./logout.php" class="btn btn-primary">Log Out</a>
+                <a href="./tender-requests/" class="btn btn-primary">View All Requests</a>
             </div>
             <div class="col-lg-5">
                 <div class="form-wrap border rounded p-4">
@@ -90,7 +90,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     }
                     ?>
                     <!-- form starts here -->
-                    <form method="post" novalidate>
+                    <form method="post"  accept-charset="UTF-8" role="form" enctype="multipart/form-data" novalidate>
                         <div class="mb-3">
                             <label for="departmentName" class="form-label">departmentName</label>
                             <select class="form-select" aria-label="Default select example" name="departmentID" required>

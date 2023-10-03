@@ -89,7 +89,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
           <h1>Log In</h1>
           <p>Please login to continue</p>
            <!-- form starts here -->
-          <form method="post" novalidate>
+          <form method="post">
             <div class="mb-3">
               <label for="user_login" class="form-label">Email</label>
               <input type="text" class="form-control" name="user_login" id="user_login" value="<?= $user_login; ?>">

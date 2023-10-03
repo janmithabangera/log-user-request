@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Sep 29, 2023 at 08:57 AM
+-- Generation Time: Oct 03, 2023 at 08:17 AM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.0.28
 
@@ -44,6 +44,34 @@ INSERT INTO `department` (`id`, `name`) VALUES
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `sections`
+--
+
+CREATE TABLE `sections` (
+  `id` int(11) NOT NULL,
+  `name` varchar(50) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+--
+-- Dumping data for table `sections`
+--
+
+INSERT INTO `sections` (`id`, `name`) VALUES
+(1, 'CE PKT'),
+(2, 'CE UDH'),
+(3, 'CE JALANDHAR'),
+(4, 'CE CHANDIGARH'),
+(5, 'CE LEH'),
+(6, 'CE NC & CE 31 ZONE'),
+(7, 'CE AF UDHAMPUR'),
+(8, 'CESC AND CE (AF) NAGPUR'),
+(9, 'CE SWC AND CE JAIPUR'),
+(10, 'CE BAREILLY'),
+(11, 'CE (FY)');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `tenders`
 --
 
@@ -68,34 +96,6 @@ INSERT INTO `tenders` (`id`, `due_date`, `tenderID`, `department_id`) VALUES
 -- --------------------------------------------------------
 
 --
--- Table structure for table `userrequestlogs`
---
-
-CREATE TABLE `userrequestlogs` (
-  `id` int(11) NOT NULL,
-  `user_id` int(11) DEFAULT NULL,
-  `tender_id` int(11) DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
-
---
--- Dumping data for table `userrequestlogs`
---
-
-INSERT INTO `userrequestlogs` (`id`, `user_id`, `tender_id`, `created_at`) VALUES
-(1, 1, 1, '2023-09-28 18:54:05'),
-(2, 1, 1, '2023-09-28 19:09:28'),
-(3, 1, 2, '2023-09-28 19:10:15'),
-(4, 1, 2, '2023-09-28 19:10:37'),
-(5, 1, 4, '2023-09-29 04:25:48'),
-(6, 1, 4, '2023-09-29 05:57:06'),
-(7, 2, 4, '2023-09-29 06:20:45'),
-(8, 3, 5, '2023-09-29 06:45:39'),
-(9, 3, 2, '2023-09-29 06:52:37');
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `users`
 --
 
@@ -116,6 +116,40 @@ INSERT INTO `users` (`id`, `username`, `email`, `password`, `created_at`) VALUES
 (2, 'priya', 'priyaraj@gmail.com', '$2y$10$y9hIMBAUHSi5Wdc.GRSX4O2BOycn.kMV3tkqxHXuKSZ.RPum9D7Ya', '2023-09-29 11:50:19'),
 (3, 'test_user', 'test@gmail.com', '$2y$10$mOg6igea0P.PHvNWqZh1vOwPeisNgYnIpMEazjhqBXY0t97uKhdbe', '2023-09-29 12:12:19');
 
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `user_tender_requests`
+--
+
+CREATE TABLE `user_tender_requests` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `tender_id` int(11) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `status` varchar(15) NOT NULL,
+  `tender_no` varchar(20) DEFAULT NULL,
+  `name_of_work` varchar(255) DEFAULT NULL,
+  `file_name` varchar(40) DEFAULT NULL,
+  `reference_code` varchar(20) DEFAULT NULL,
+  `section_id` varchar(20) NOT NULL,
+  `sent_at` datetime DEFAULT NULL,
+  `edit_user_id` int(11) DEFAULT NULL,
+  `allotted_at` datetime DEFAULT NULL,
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+--
+-- Dumping data for table `user_tender_requests`
+--
+
+INSERT INTO `user_tender_requests` (`id`, `user_id`, `tender_id`, `created_at`, `status`, `tender_no`, `name_of_work`, `file_name`, `reference_code`, `section_id`, `sent_at`, `edit_user_id`, `allotted_at`, `updated_at`) VALUES
+(1, 1, 4, '2023-10-02 19:33:36', 'Sent', 'jhxbscb', 'construction', '169044613763.pdf', '2256789', '9', '2023-10-03 06:39:36', NULL, NULL, '2023-10-03 10:09:36'),
+(2, 1, 2, '2023-10-03 05:48:11', 'Sent', 'cm1/ui/567/89', 'machine works', '168968479935.pdf', '2256789', '6', '2023-10-03 07:52:23', NULL, NULL, '2023-10-03 11:22:23'),
+(3, 1, 5, '2023-10-03 05:48:54', 'Requested', NULL, NULL, NULL, NULL, '', NULL, NULL, NULL, '2023-10-03 11:18:54'),
+(4, 1, 2, '2023-10-03 05:49:55', 'Requested', NULL, NULL, NULL, NULL, '', NULL, NULL, NULL, '2023-10-03 11:19:55'),
+(5, 1, 4, '2023-10-03 05:58:06', 'Sent', 'cm1/ui/567/89', 'lighting', '168968479937.pdf', 'promo8765', '10', '2023-10-03 07:58:36', NULL, NULL, '2023-10-03 11:28:36');
+
 --
 -- Indexes for dumped tables
 --
@@ -127,6 +161,12 @@ ALTER TABLE `department`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `sections`
+--
+ALTER TABLE `sections`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `tenders`
 --
 ALTER TABLE `tenders`
@@ -134,15 +174,15 @@ ALTER TABLE `tenders`
   ADD UNIQUE KEY `tender_id` (`tenderID`);
 
 --
--- Indexes for table `userrequestlogs`
---
-ALTER TABLE `userrequestlogs`
-  ADD PRIMARY KEY (`id`);
-
---
 -- Indexes for table `users`
 --
 ALTER TABLE `users`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `user_tender_requests`
+--
+ALTER TABLE `user_tender_requests`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -156,22 +196,28 @@ ALTER TABLE `department`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
+-- AUTO_INCREMENT for table `sections`
+--
+ALTER TABLE `sections`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+
+--
 -- AUTO_INCREMENT for table `tenders`
 --
 ALTER TABLE `tenders`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
--- AUTO_INCREMENT for table `userrequestlogs`
---
-ALTER TABLE `userrequestlogs`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
-
---
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
+-- AUTO_INCREMENT for table `user_tender_requests`
+--
+ALTER TABLE `user_tender_requests`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

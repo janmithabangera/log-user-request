@@ -92,7 +92,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
           <h1>Sign up</h1>
           <p>Please fill this form to register</p>
            <!-- form starts here -->
-          <form method="post" novalidate>
+          <form method="post">
             <div class="mb-3">
               <label for="username" class="form-label">Username</label>
               <input type="text" class="form-control" name="username" id="username" value="<?= $username; ?>">

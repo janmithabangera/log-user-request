@@ -1,5 +1,5 @@
 <?php
-require_once "./config.php";
+require_once "../config.php";
 # Initialize the session
 session_start();
 
@@ -10,9 +10,9 @@ if (!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== TRUE) {
 }
 
 $query = "SELECT users.username,users.email, department.name as departmentName, 
-tenders.tenderID, tenders.due_date, userrequestlogs.created_at FROM `userrequestlogs` 
+tenders.tenderID, tenders.due_date, userrequestlogs.created_at,userrequestlogs.id FROM `userrequestlogs` 
 inner join `users` on userrequestlogs.user_id= users.id inner join `tenders` on
- userrequestlogs.tender_id = tenders.id inner join `department` on tenders.department_id = department.id";
+ userrequestlogs.tender_id = tenders.id inner join `department` on tenders.department_id = department.id where userrequestlogs.status= 'Alotted'";
 
 $data = [];
 $result = $link->query($query);
@@ -41,7 +41,11 @@ mysqli_close($link);
         <div class="col-lg-5 text-left">
             <h4 class="my-4"><?= htmlspecialchars($_SESSION["username"]); ?></h4>
             <a href="./logout.php" class="btn btn-primary">Log Out</a>
+            <a href="../tender-requests/" class="btn btn-primary">All User Tender Requests</a>
+            <a href="../sent-tenders/" class="btn btn-primary">Sent Tender</a>
+            <a href="../alot-tenders/" class="btn btn-primary">Alot Tender</a>
         </div>
+        
         <div class="row justify-content-center">
             <div class="col-lg-12">
                 <h1>All Tender Request</h1>
@@ -50,7 +54,7 @@ mysqli_close($link);
                         <table class="table">
                             <thead>
                                 <tr>
-                                    <th colspan="5" class="text-center"> Tender ID: <?= $key ?></th>
+                                    <th colspan="6" class="text-center"> Tender ID: <?= $key ?></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -60,6 +64,7 @@ mysqli_close($link);
                                     <td>Department Name</td>
                                     <td>Due Date</td>
                                     <td>Request Created At</td>
+                                    <td>Action</td>
                                 </tr>
                                 <?php foreach ($values as $itemKey => $item) { ?>
                                     <tr>
@@ -68,6 +73,26 @@ mysqli_close($link);
                                         <td><?php echo $values[$itemKey]['departmentName'] ?></td>
                                         <td><?php echo $values[$itemKey]['due_date'] ?></td>
                                         <td><?php echo $values[$itemKey]['created_at'] ?></td>
+                                        <td width="15%">
+                                            <a href="./sent-tenders/628" class="btn btn-success"> <i class="fa fa-edit"></i> Alot File</a>
+
+                                            <a href="javascript:confirmation628()" class="btn btn-danger"> <i class="fa fa-edit"></i> Delete</a>
+
+                                            <script type="text/javascript">
+                                                function confirmation628() {
+                                                    var answer = confirm("Are you sure want to delete?")
+                                                    if (answer) {
+                                                        //alert("Entry Deleted")
+                                                        window.location = "./sent-tender/628";
+                                                    } else {
+
+                                                    }
+                                                }
+                                            </script>
+
+
+
+                                        </td>
                                     </tr>
                                 <?php } ?>
                             </tbody>

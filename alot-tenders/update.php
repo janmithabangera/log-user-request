@@ -9,17 +9,63 @@ if (!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== TRUE) {
     exit;
 }
 
-$query = "SELECT users.username,users.email, department.name as departmentName, 
-tenders.tenderID, tenders.due_date, userrequestlogs.created_at FROM `userrequestlogs` 
-inner join `users` on userrequestlogs.user_id= users.id inner join `tenders` on
- userrequestlogs.tender_id = tenders.id inner join `department` on tenders.department_id = department.id";
+$editUserError = $reminderError = "";
 
-$data = [];
-$result = $link->query($query);
-while ($row = $result->fetch_assoc()) {
-    $data[$row['tenderID']][] = $row;
+$usersQuery = "SELECT * FROM users ORDER BY username ASC;";
+$users = $link->query($usersQuery);
+// print
+
+$query = "SELECT department.name as departmentName, tenders.tenderID, user_tender_requests.id, 
+user_tender_requests.tender_No, user_tender_requests.name_of_work, user_tender_requests.edit_user_id,
+user_tender_requests.reminder_days,
+user_tender_requests.reference_code, sections.name as section_name FROM `user_tender_requests`
+inner join `tenders` on user_tender_requests.tender_id = tenders.id 
+inner join `sections` on user_tender_requests.section_id= sections.id
+inner join `department` on tenders.department_id = department.id where user_tender_requests.id=?;";
+
+
+$updateTenderRequest = $link->prepare($query);
+$updateTenderRequest->bind_param("i", $_GET['id']);
+if ($updateTenderRequest->execute()) {
+    $tenderRequest = $updateTenderRequest->get_result()->fetch_assoc();
 }
 
+$editUserQuery = "SELECT username from users where id=?";
+$editUserRes = $link->prepare($editUserQuery);
+$editUserRes->bind_param("i", $tenderRequest['edit_user_id']);
+if ($editUserRes->execute()) {
+    $editUser = $editUserRes->get_result()->fetch_assoc();
+}
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+
+    if (empty($_POST["editUser"])) {
+        $editUserError = "select user";
+    } else {
+        $editUserID = $_POST["editUser"];
+    }
+
+    if (empty($_POST["reminder"])) {
+        $reminderError = "select reminder days";
+    } else {
+        $reminderDays = $_POST["reminder"];
+    }
+
+    # Validate credentials 
+    if ((isset($editUserID) && isset($reminderDays)) && ($editUserID != $tenderRequest['edit_user_id']) ||  $reminderDays != $tenderRequest['reminder_days']) {
+        $requestID = $tenderRequest['id'];
+        $date = date('Y-m-d H:i:s');
+
+        $sql = "UPDATE `user_tender_requests` SET `edit_user_id`=?,`reminder_days`=? WHERE id=?";
+        $stmt = $link->prepare($sql);
+
+        $stmt->bind_param("ssi", $editUserID, $reminderDays, $requestID);
+        if ($stmt->execute()) {
+            echo "<script>" . "window.location.href='../alot-tenders/';" . "</script>";
+        }
+        echo "<script>" . "alert('Oops! Something went wrong. Please try again later.');" . "</script>";
+    }
+}
 # Close connection
 mysqli_close($link);
 
@@ -45,59 +91,102 @@ mysqli_close($link);
             <a href="../sent-tenders/" class="btn btn-primary">Sent Tender</a>
             <a href="../alot-tenders/" class="btn btn-primary">Alot Tender</a>
         </div>
-        
+
         <div class="row justify-content-center">
             <div class="col-lg-12">
                 <h1>All Tender Request</h1>
                 <div class="form-wrap border rounded p-4">
-                    <?php foreach ($data  as $key => $values) { ?>
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th colspan="6" class="text-center"> Tender ID: <?= $key ?></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>Username</td>
-                                    <td>Email</td>
-                                    <td>Department Name</td>
-                                    <td>Due Date</td>
-                                    <td>Request Created At</td>
-                                    <td>Action</td>
-                                </tr>
-                                <?php foreach ($values as $itemKey => $item) { ?>
+                    <section class="content">
+
+                        <!-- general form elements -->
+                        <div class="box box-primary">
+                            <br>
+                            <table class="table  table-bordered" width="98%" style="margin-left:10px border=1">
+                                <tbody>
                                     <tr>
-                                        <td><?php echo $values[$itemKey]["username"] ?></td>
-                                        <td><?php echo $values[$itemKey]["email"] ?></td>
-                                        <td><?php echo $values[$itemKey]['departmentName'] ?></td>
-                                        <td><?php echo $values[$itemKey]['due_date'] ?></td>
-                                        <td><?php echo $values[$itemKey]['created_at'] ?></td>
-                                        <td width="15%">
-                                            <a href="./sent-tender/628" class="btn btn-success"> <i class="fa fa-edit"></i> Update File</a>
-
-                                            <a href="javascript:confirmation628()" class="btn btn-danger"> <i class="fa fa-edit"></i> Delete</a>
-
-                                            <script type="text/javascript">
-                                                function confirmation628() {
-                                                    var answer = confirm("Are you sure want to delete?")
-                                                    if (answer) {
-                                                        //alert("Entry Deleted")
-                                                        window.location = "./sent-tender/628";
-                                                    } else {
-
-                                                    }
-                                                }
-                                            </script>
-
-
-
-                                        </td>
+                                        <td width="20%"><b>Tender ID</b> : </td>
+                                        <td width="80%"><?php echo $tenderRequest['tenderID'] ?></td>
                                     </tr>
-                                <?php } ?>
-                            </tbody>
-                        </table>
-                    <?php } ?>
+
+                                    <tr>
+                                        <td width="20%"><b>Tender No</b> : </td>
+                                        <td width="80%"> <?php echo $tenderRequest['tender_No'] ?></td>
+                                    </tr>
+
+                                    <tr>
+                                        <td width="20%"><b>Ref No</b> : </td>
+                                        <td width="80%"><?php echo $tenderRequest['reference_code'] ?></td>
+                                    </tr>
+
+                                    <tr>
+                                        <td width="20%"><b>Work Name</b> : </td>
+                                        <td width="80%"><?php echo $tenderRequest['name_of_work'] ?></td>
+                                    </tr>
+
+                                    <tr>
+                                        <td width="20%"><b>Department</b> : </td>
+                                        <td width="20%"><?php echo $tenderRequest['departmentName'] ?></td>
+
+                                    </tr>
+
+                                    <tr>
+                                        <td>&nbsp;</td>
+                                        <td><?php echo $tenderRequest['section_name'] ?></td>
+                                    </tr>
+
+                                    <tr>
+                                        <td>&nbsp;</td>
+                                        <td></td>
+                                    </tr>
+
+                                </tbody>
+                            </table>
+
+                            <hr>
+
+                            <div class="box-header">
+                                <h4 class="box-title">Update Alot Tender</h4>
+                            </div><!-- /.box-header -->
+                            <!-- form start -->
+                            <form method="POST" accept-charset="UTF-8" role="form" enctype="multipart/form-data">
+                                <div class="box-body">
+                                    <div class="input-group mb-3">
+                                        <span class="input-group-text">Selected User</span>
+                                        <input type="text" class="form-control" placeholder="" value="<?= $editUser['username'] ?>" disabled>
+                                    </div>
+                                    <div class="input-group mb-3">
+                                        <span class="input-group-text">Edit User</span>
+                                        <select name="editUser" class="js-example-basic-multiple form-control">
+                                            <option value="">Select</option>
+                                            <?php if ($users->num_rows > 0) {
+                                                while ($row = $users->fetch_assoc()) { ?>
+                                                    <option value="<?= $row["id"] ?>"><?= $row["username"] ?></option>
+                                            <?php }
+                                            } ?>
+                                        </select>
+                                        <small class="text-danger"><?= $editUserError; ?></small>
+                                    </div>
+                                    <div class="input-group mb-3">
+                                        <span class="input-group-text">Set Reminder</span>
+                                        <select name="reminder" class="form-control">
+                                            <option value="0">0 Days</option>
+                                            <?php for ($i = 1; $i <= 365; $i++) { ?>
+                                                <option value="<?= $i ?>" <?php if ($tenderRequest['reminder_days'] == $i) {
+                                                                                echo "selected=''";
+                                                                            } ?>><?= $i ?> Days</option>
+                                            <?php } ?>
+                                        </select>
+                                        <small class="text-danger"><?= $reminderError; ?></small>
+                                    </div>
+
+                                    <div class="box-footer">
+                                        <button type="submit" class="btn btn-primary" name="submit">Submit</button>
+                                    </div>
+
+                                </div>
+                            </form><!-- /.box -->
+                        </div>
+                    </section>
                 </div>
             </div>
         </div>

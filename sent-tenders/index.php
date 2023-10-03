@@ -12,8 +12,8 @@ if (!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== TRUE) {
 #query to get sent requests
 $query = "SELECT users.username, department.name as departmentName, tenders.tenderID, tenders.due_date, user_tender_requests.created_at, 
 user_tender_requests.id, user_tender_requests.tender_No, user_tender_requests.file_name, user_tender_requests.name_of_work, 
-user_tender_requests.sent_at, user_tender_requests.id FROM `user_tender_requests` inner join `users` on 
-user_tender_requests.user_id= users.id inner join `tenders` on user_tender_requests.tender_id = tenders.id inner join `department` on 
+user_tender_requests.sent_at FROM `user_tender_requests` inner join `users` on 
+user_tender_requests.user_id = users.id inner join `tenders` on user_tender_requests.tender_id = tenders.id inner join `department` on 
 tenders.department_id = department.id where user_tender_requests.status= 'Sent';";
 
 $data = [];
@@ -45,56 +45,60 @@ mysqli_close($link);
             <h4 class="my-4"><?= htmlspecialchars($_SESSION["username"]); ?></h4>
             <a href="./logout.php" class="btn btn-primary">Log Out</a>
             <a href="../tender-requests/" class="btn btn-primary">All User Tender Requests</a>
-            <a href="../sent-tenders/" class="btn btn-primary">Sent Tender</a>
+            <a href="../sent-tenders/" class="btn btn-success">Sent Tender</a>
             <a href="../alot-tenders/" class="btn btn-primary">Alot Tender</a>
         </div>
-        
+
         <div class="row justify-content-center">
             <div class="col-lg-12">
                 <h1>All Sent Request</h1>
                 <div class="form-wrap border rounded p-4">
                     <?php
-                    if(count($data)>0){ foreach ($data  as $key => $values) { ?>
-                        <table class="table table-bordered">
-                            <thead>
-                                <tr>
-                                    <th colspan="8" class="text-center tenderID"> Tender ID: <?= $key ?></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr class="header">
-                                    <td>S No.</td>
-                                    <td>Username</td>
-                                    <td>Tender No</td>
-                                    <td>Department Name</td>
-                                    <td>Work Name</td>
-                                    <td>Due Date</td>
-                                    <td>Created At</td>
-                                    <td>Sent At</td>
-                                    <td>Action</td>
-                                </tr>
-                                <?php 
-                                $counter=1;
-                                foreach ($values as $itemKey => $item) { ?>
+                    if (count($data) > 0) {
+                        foreach ($data  as $key => $values) { ?>
+                            <table class="table table-bordered">
+                                <thead>
                                     <tr>
-                                        <td><?php echo $counter ?></td>
-                                        <td><?php echo $values[$itemKey]["username"] ?></td>
-                                        <td><?php echo $values[$itemKey]["tender_No"] ?></td>
-                                        <td><?php echo $values[$itemKey]['departmentName'] ?></td>
-                                        <td><?php echo $values[$itemKey]['name_of_work'] ?></td>
-                                        <td><?php echo $values[$itemKey]['due_date'] ?></td>
-                                        <td><?php echo $values[$itemKey]['created_at'] ?></td>
-                                        <td><?php echo $values[$itemKey]['sent_at']."(". $values[$itemKey]["username"] .")"?>
-                                        <a href="../uploadedFiles/<?php  echo $values[$itemKey]['file_name'] ?>" target="_blank">View file</a></td>
-                                        <td width="15%">
-                                            <a href="./alot-tender.php?id=<?php echo $values[$itemKey]["id"];?>" class="btn btn-success"> <i class="fa fa-edit"></i> Alot Tender</a>
-                                        </td>
+                                        <th colspan="8" class="text-center tenderID"> Tender ID: <?= $key ?></th>
                                     </tr>
-                                <?php $counter++; }  ?>
-                            </tbody>
-                        </table>
-                    <?php } }else{
-                       echo  "<th colspan='8' class='text-center tenderID>No data Found </th>";
+                                </thead>
+                                <tbody>
+                                    <tr class="header">
+                                        <td>S No.</td>
+                                        <td>Username</td>
+                                        <td>Tender No</td>
+                                        <td>Department Name</td>
+                                        <td>Work Name</td>
+                                        <td>Due Date</td>
+                                        <td>Created On</td>
+                                        <td>Sent On</td>
+                                        <td>Action</td>
+                                    </tr>
+                                    <?php
+                                    $counter = 1;
+                                    foreach ($values as $itemKey => $item) { ?>
+                                        <tr>
+                                            <td><?php echo $counter ?></td>
+                                            <td><?php echo $values[$itemKey]["username"] ?></td>
+                                            <td><?php echo $values[$itemKey]["tender_No"] ?></td>
+                                            <td><?php echo $values[$itemKey]['departmentName'] ?></td>
+                                            <td><?php echo $values[$itemKey]['name_of_work'] ?></td>
+                                            <td><?php echo $values[$itemKey]['due_date'] ?></td>
+                                            <td><?php echo $values[$itemKey]['created_at'] ?></td>
+                                            <td><?php echo $values[$itemKey]['sent_at'] . " (" . $values[$itemKey]["username"] . ")" ?>
+                                                <a href="../uploadedFiles/<?php echo $values[$itemKey]['file_name'] ?>" target="_blank">View file</a>
+                                            </td>
+                                            <td width="15%">
+                                                <a href="./alot-tender.php?id=<?php echo $values[$itemKey]["id"]; ?>" class="btn btn-success"> <i class="fa fa-edit"></i> Alot Tender</a>
+                                            </td>
+                                        </tr>
+                                    <?php $counter++;
+                                    }  ?>
+                                </tbody>
+                            </table>
+                    <?php }
+                    } else {
+                        echo  "<p class='text-center'>No data Found </p>";
                     } ?>
                 </div>
             </div>

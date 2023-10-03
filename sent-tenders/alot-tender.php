@@ -9,19 +9,18 @@ if (!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== TRUE) {
     exit;
 }
 
-$sectionError = $uploadFileError = $tenderNoError = "";
-$fileUploadDirectory = '../uploadedFiles/';
+$editUserError = $reminderError = "";
 
-$allDepartmentQuery = "SELECT * FROM department ORDER BY name ASC;";
-$departments = $link->query($allDepartmentQuery);
+$usersQuery = "SELECT * FROM users ORDER BY username ASC;";
+$users = $link->query($usersQuery);
+// print
 
-$allSectionsQuery = "SELECT * FROM sections ORDER BY name ASC;";
-$sections = $link->query($allSectionsQuery);
-
-$query = "SELECT users.username,users.email, users.id as userID, department.name as departmentName, 
-tenders.tenderID, userrequestlogs.id as tender_request_id, tenders.due_date, userrequestlogs.created_at FROM `userrequestlogs` 
-inner join `users` on userrequestlogs.user_id= users.id inner join `tenders` on
- userrequestlogs.tender_id = tenders.id inner join `department` on tenders.department_id = department.id where userrequestlogs.id=?";
+$query = "SELECT department.name as departmentName, tenders.tenderID, user_tender_requests.id, 
+user_tender_requests.tender_No, user_tender_requests.name_of_work, 
+user_tender_requests.reference_code, sections.name as section_name FROM `user_tender_requests`
+inner join `tenders` on user_tender_requests.tender_id = tenders.id 
+inner join `sections` on user_tender_requests.section_id= sections.id
+inner join `department` on tenders.department_id = department.id where user_tender_requests.id=?;";
 
 
 $updateTenderRequest = $link->prepare($query);
@@ -33,29 +32,28 @@ if ($updateTenderRequest->execute()) {
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     if (!isset($_POST["editUser"])) {
-        $sectionError = "select section Name";
+        $editUserError = "select user";
     } else {
-        $editUser = $_POST["editUser"];
+        $editUserID = $_POST["editUser"];
     }
 
     if (!isset($_POST["reminder"])) {
-        $tenderNoError = "Enter valid Tender No";
+        $reminderError = "select reminder days";
     } else {
-        $reminder = $_POST["reminder"];
+        $reminderDays = $_POST["reminder"];
     }
 
-
     # Validate credentials 
-    if (isset($editUser) && isset($reminder)) {
+    if (isset($editUserID) && isset($reminderDays)) {
         $requestID = $tenderRequest['id'];
-        $date = date('Y-m-d h:i:s');
-        $sql = "UPDATE `user_tender_requests` SET `status`='Allotted',`tender_no`=?,`name_of_work`=?,`file_name`=?,
-        `reference_code`=?,`section_id`=?,`sent_at`=? WHERE id=?";
+        $date = date('Y-m-d H:i:s');
 
+        $sql = "UPDATE `user_tender_requests` SET `status`='Allotted',`edit_user_id`=?,`reminder_days`=?, `allotted_at`=? WHERE id=?";
         $stmt = $link->prepare($sql);
-        $stmt->bind_param("ssssssi", $_POST['tender_no'], $_POST['work_name'], $filename, $_POST['ref_code'], $_POST['section_1'], $date, $requestID);
+
+        $stmt->bind_param("sssi", $editUserID, $reminderDays, $date, $requestID);
         if ($stmt->execute()) {
-            echo "<script>" . "window.location.href='../sent-tenders/';" . "</script>";
+            echo "<script>" . "window.location.href='../alot-tenders/';" . "</script>";
         }
         echo "<script>" . "alert('Oops! Something went wrong. Please try again later.');" . "</script>";
     }
@@ -95,52 +93,37 @@ mysqli_close($link);
                         <!-- general form elements -->
                         <div class="box box-primary">
                             <br>
-                            <table width="98%" style="margin-left:10px border=1">
+                            <table class="table  table-bordered" width="98%" style="margin-left:10px border=1">
                                 <tbody>
                                     <tr>
                                         <td width="20%"><b>Tender ID</b> : </td>
-                                        <td width="80%">2022_MES_554329_3</td>
+                                        <td width="80%"><?php echo $tenderRequest['tenderID'] ?></td>
                                     </tr>
 
                                     <tr>
                                         <td width="20%"><b>Tender No</b> : </td>
-                                        <td width="80%"> 37/CWE/ASR/2022-23</td>
+                                        <td width="80%"> <?php echo $tenderRequest['tender_No'] ?></td>
                                     </tr>
 
                                     <tr>
                                         <td width="20%"><b>Ref No</b> : </td>
-                                        <td width="80%"></td>
+                                        <td width="80%"><?php echo $tenderRequest['reference_code'] ?></td>
                                     </tr>
 
                                     <tr>
                                         <td width="20%"><b>Work Name</b> : </td>
-                                        <td width="80%">SPECIAL REPAIR / REPLACEMENT OF LAUNDRY PLANT AGAINST BER TO MH AT AMRITSAR CANTT UNDER GE AMRITSAR</td>
+                                        <td width="80%"><?php echo $tenderRequest['name_of_work'] ?></td>
                                     </tr>
 
                                     <tr>
                                         <td width="20%"><b>Department</b> : </td>
-                                        <td width="20%">MES</td>
+                                        <td width="20%"><?php echo $tenderRequest['departmentName'] ?></td>
 
                                     </tr>
 
                                     <tr>
                                         <td>&nbsp;</td>
-                                        <td>CE JALANDHAR</td>
-                                    </tr>
-
-                                    <tr>
-                                        <td>&nbsp;</td>
-                                        <td></td>
-                                    </tr>
-
-                                    <tr>
-                                        <td>&nbsp;</td>
-                                        <td></td>
-                                    </tr>
-
-                                    <tr>
-                                        <td>&nbsp;</td>
-                                        <td></td>
+                                        <td><?php echo $tenderRequest['section_name'] ?></td>
                                     </tr>
 
                                     <tr>
@@ -162,19 +145,28 @@ mysqli_close($link);
 
                             <form method="POST" accept-charset="UTF-8" role="form" enctype="multipart/form-data">
                                 <div class="box-body">
-                                    <div>
-                                        <span>Edit User</span>
-                                        <select name="editUser" class="js-example-basic-multiple form-control" onchange="GetOther(this.value)">
+                                    <div class="input-group mb-3">
+                                        <span class="input-group-text">Edit User</span>
+                                        <select name="editUser" class="js-example-basic-multiple form-control" required="">
                                             <option value="">Select</option>
-
+                                            <?php if ($users->num_rows > 0) {
+                                                while ($row = $users->fetch_assoc()) { ?>
+                                                    <option value="<?= $row["id"] ?>"><?= $row["username"] ?></option>
+                                            <?php }
+                                            } ?>
                                         </select>
+                                        <small class="text-danger"><?= $editUserError; ?></small>
                                     </div><br>
                                     <span id="other"></span>
-                                    <div>
-                                        <span>Set Reminder</span>
+                                    <div class="input-group mb-3">
+                                        <span class="input-group-text">Set Reminder</span>
                                         <select name="reminder" class="form-control">
                                             <option value="0">0 Days</option>
+                                            <?php for ($i = 1; $i <= 365; $i++) { ?>
+                                                <option value="<?= $i ?>"><?= $i ?> Days</option>
+                                            <?php } ?>
                                         </select>
+                                        <small class="text-danger"><?= $reminderError; ?></small>
                                     </div>
 
                                     <div class="box-footer">

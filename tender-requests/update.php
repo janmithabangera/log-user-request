@@ -51,7 +51,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (!empty($_FILES['file']['name'])) {
         $name = basename($_FILES["file"]["name"]);
 
-        if (move_uploaded_file($_FILES["file"]["tmp_name"], "$fileUploadDirectory$name")) {
+        if ($_FILES["file"]["type"] != "application/pdf") {
+            $uploadFileError = "upload valid pdf file";
+        } elseif (move_uploaded_file($_FILES["file"]["tmp_name"], "$fileUploadDirectory$name")) {
             $filename = basename($_FILES['file']['name']);
         }
     } else {
@@ -61,7 +63,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     # Validate credentials 
     if (isset($tenderNo) && isset($sectionID) && isset($filename)) {
         $requestID = $tenderRequest['id'];
-        $date = date('Y-m-d h:i:s');
+        $date = date('Y-m-d H:i:s');
 
         #query to update the tender request status along with other fields
         $sql = "UPDATE `user_tender_requests` SET `status`='Sent',`tender_no`=?,`name_of_work`=?,`file_name`=?,
@@ -115,35 +117,29 @@ mysqli_close($link);
                         <form method="POST" accept-charset="UTF-8" role="form" enctype="multipart/form-data">
                             <div class="box-body">
                                 <div>
-                                    <span>File</span>
-                                    <input type="file" class="form-control" placeholder="" name="file" required="">
+                                    <input type="file" class="form-control" placeholder="upload pdf file" name="file" required="">
                                     <small class="text-danger"><?= $uploadFileError; ?></small>
                                 </div><br>
-
-                                <div>
-                                    <span>Tender No</span>
+                                <div class="input-group mb-3">
+                                    <span class="input-group-text">Tender No</span>
                                     <input type="text" class="form-control" placeholder="" name="tender_no" required="">
                                     <small class="text-danger"><?= $tenderNoError; ?></small>
                                 </div><br>
-
-                                <div>
-                                    <span>Reference Code</span>
+                                <div class="input-group mb-3">
+                                    <span class="input-group-text">Reference Code</span>
                                     <input type="text" class="form-control" placeholder="" name="ref_code">
                                 </div><br>
-
-                                <div>
-                                    <span>Name of Work</span>
+                                <div class="input-group mb-3">
+                                    <span class="input-group-text">Name of Work</span>
                                     <input type="text" class="form-control" placeholder="" name="work_name">
                                 </div><br>
-
-
-                                <div>
-                                    <span>Tender ID</span>
+                                <div class="input-group mb-3">
+                                    <span class="input-group-text">Tender ID</span>
                                     <input type="text" class="form-control" placeholder="" name="tender_id" value="<?php echo $tenderRequest['tenderID'] ?>" disabled>
                                 </div><br>
 
-                                <div>
-                                    <span>Departments</span>
+                                <div class="input-group mb-3">
+                                    <span class="input-group-text">Departments</span>
                                     <select name="department_id" class="form-control" required="" disabled>
                                         <option value="">Select Department</option>
                                         <?php if ($departments->num_rows > 0) {
@@ -156,8 +152,8 @@ mysqli_close($link);
                                         } ?>
                                     </select>
                                 </div><br>
-                                <div>
-                                    <span>Section</span>
+                                <div class="input-group mb-3">
+                                    <span class="input-group-text">Section</span>
                                     <select name="section_1" class="form-control" required="" onchange="getOption(this.value,4)">
                                         <option value="">Select Section</option>
                                         <?php if ($sections->num_rows > 0) {

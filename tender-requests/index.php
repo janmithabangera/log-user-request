@@ -42,7 +42,7 @@ mysqli_close($link);
         <div class="col-lg-5 text-left">
             <h4 class="my-4"><?= htmlspecialchars($_SESSION["username"]); ?></h4>
             <a href="./logout.php" class="btn btn-primary">Log Out</a>
-            <a href="../" class="btn btn-primary">Back </a>
+            <a href="../" class="btn btn-success">Back </a>
             <a href="../sent-tenders/" class="btn btn-primary">Sent Tender</a>
             <a href="../alot-tenders/" class="btn btn-primary">Alot Tender</a>
         </div>
@@ -66,11 +66,11 @@ mysqli_close($link);
                                         <td>Email</td>
                                         <td>Department Name</td>
                                         <td>Due Date</td>
-                                        <td>Request Created At</td>
+                                        <td>Request Created On</td>
                                         <td>Action</td>
                                     </tr>
-                                    <?php 
-                                    $counter=1;
+                                    <?php
+                                    $counter = 1;
                                     foreach ($values as $itemKey => $item) { ?>
                                         <tr>
                                             <td><?php echo $counter ?></td>
@@ -83,11 +83,12 @@ mysqli_close($link);
                                                 <a href="./update.php?id=<?php echo $values[$itemKey]["id"]; ?>" class="btn btn-success"> <i class="fa fa-edit"></i> Update File</a>
                                             </td>
                                         </tr>
-                                    <?php $counter++; } ?>
+                                    <?php $counter++;
+                                    } ?>
                                 </tbody>
                             </table>
                     <?php }
-                    } else { 
+                    } else {
                         echo  "<p class='text-center'>No data Found </p>";
                     } ?>
                 </div>

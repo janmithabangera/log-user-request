@@ -15,12 +15,11 @@ $usersQuery = "SELECT * FROM users ORDER BY username ASC;";
 $users = $link->query($usersQuery);
 // print
 
-$query = "SELECT department.name as departmentName, tenders.tenderID, user_tender_requests.id, 
+$query = "SELECT department.name as departmentName, user_tender_requests.tenderID, user_tender_requests.id, 
 user_tender_requests.tender_No, user_tender_requests.name_of_work, 
 user_tender_requests.reference_code, sections.name as section_name FROM `user_tender_requests`
-inner join `tenders` on user_tender_requests.tender_id = tenders.id 
 inner join `sections` on user_tender_requests.section_id= sections.id
-inner join `department` on tenders.department_id = department.id where user_tender_requests.id=?;";
+inner join `department` on user_tender_requests.department_id = department.id where user_tender_requests.id=?;";
 
 
 $updateTenderRequest = $link->prepare($query);
@@ -78,7 +77,7 @@ mysqli_close($link);
     <div class="container">
         <div class="col-lg-5 text-left">
             <h4 class="my-4"><?= htmlspecialchars($_SESSION["username"]); ?></h4>
-            <a href="./logout.php" class="btn btn-primary">Log Out</a>
+            <a href="../logout.php" class="btn btn-primary">Log Out</a>
             <a href="../tender-requests/" class="btn btn-primary">All User Tender Requests</a>
             <a href="../sent-tenders/" class="btn btn-primary">Sent Tender</a>
             <a href="../alot-tenders/" class="btn btn-primary">Alot Tender</a>

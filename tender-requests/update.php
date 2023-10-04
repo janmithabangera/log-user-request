@@ -9,7 +9,7 @@ if (!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== TRUE) {
     exit;
 }
 
-$sectionError = $uploadFileError = $tenderNoError = "";
+$sectionError = $uploadFileError = $tenderNoError = $departmentError="";
 $fileUploadDirectory = '../uploadedFiles/';
 
 #query to get all departments
@@ -22,9 +22,9 @@ $sections = $link->query($allSectionsQuery);
 
 #query to get the request tender to be updated
 $query = "SELECT users.username, users.email, users.id as userID, department.name as departmentName, 
-tenders.tenderID, user_tender_requests.id, tenders.due_date, user_tender_requests.created_at FROM `user_tender_requests`
-inner join `users` on user_tender_requests.user_id= users.id inner join `tenders` on user_tender_requests.tender_id = tenders.id 
-inner join `department` on tenders.department_id = department.id where user_tender_requests.id=?;";
+user_tender_requests.tenderID, user_tender_requests.id, user_tender_requests.created_at FROM `user_tender_requests`
+inner join `users` on user_tender_requests.user_id= users.id  
+inner join `department` on user_tender_requests.department_id = department.id where user_tender_requests.id=?;";
 
 
 $updateTenderRequest = $link->prepare($query);
@@ -47,6 +47,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $tenderNo = $_POST["tender_no"];
     }
 
+    if (!isset($_POST["department_id"])) {
+        $departmentError = "Enter valid Tender No";
+    } else {
+        $departmentID = $_POST["department_id"];
+    }
+
+
     #file upload to directory
     if (!empty($_FILES['file']['name'])) {
         $name = basename($_FILES["file"]["name"]);
@@ -61,7 +68,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     # Validate credentials 
-    if (isset($tenderNo) && isset($sectionID) && isset($filename)) {
+    if (isset($tenderNo) && isset($sectionID) && isset($filename) && isset($departmentID)) {
         $requestID = $tenderRequest['id'];
         $date = date('Y-m-d H:i:s');
 
@@ -98,7 +105,7 @@ mysqli_close($link);
     <div class="container">
         <div class="col-lg-5 text-left">
             <h4 class="my-4"><?= htmlspecialchars($_SESSION["username"]); ?></h4>
-            <a href="./logout.php" class="btn btn-primary">Log Out</a>
+            <a href="../logout.php" class="btn btn-primary">Log Out</a>
             <a href="../tender-requests/" class="btn btn-primary">All User Tender Requests</a>
             <a href="../sent-tenders/" class="btn btn-primary">Sent Tender</a>
             <a href="../alot-tenders/" class="btn btn-primary">Alot Tender</a>
@@ -140,7 +147,7 @@ mysqli_close($link);
 
                                 <div class="input-group mb-3">
                                     <span class="input-group-text">Departments</span>
-                                    <select name="department_id" class="form-control" required="" disabled>
+                                    <select name="department_id" class="form-control" required="" >
                                         <option value="">Select Department</option>
                                         <?php if ($departments->num_rows > 0) {
                                             while ($row = $departments->fetch_assoc()) { ?>
@@ -151,6 +158,7 @@ mysqli_close($link);
                                         <?php }
                                         } ?>
                                     </select>
+                                    <small class="text-danger"><?= $departmentError;?></small>
                                 </div><br>
                                 <div class="input-group mb-3">
                                     <span class="input-group-text">Section</span>
@@ -162,7 +170,7 @@ mysqli_close($link);
                                         <?php }
                                         } ?>
                                     </select>
-                                    <small class="text-danger"><?= $sectionError; ?></small>
+                                    <small class="text-danger"><?= $sectionError;?></small>
                                 </div><br>
                                 <div class="box-footer">
                                     <button type="submit" class="btn btn-primary" name="submit">Submit</button>

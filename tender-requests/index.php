@@ -10,9 +10,9 @@ if (!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== TRUE) {
 }
 
 $query = "SELECT users.username,users.email, department.name as departmentName, 
-tenders.tenderID, tenders.due_date, user_tender_requests.created_at,user_tender_requests.id FROM `user_tender_requests` 
-inner join `users` on user_tender_requests.user_id= users.id inner join `tenders` on
-user_tender_requests.tender_id = tenders.id inner join `department` on tenders.department_id = department.id where user_tender_requests.status= 'Requested'";
+user_tender_requests.tenderID, user_tender_requests.created_at,user_tender_requests.id FROM `user_tender_requests` 
+inner join `users` on user_tender_requests.user_id= users.id
+inner join `department` on user_tender_requests.department_id = department.id where user_tender_requests.status= 'Requested'";
 
 $data = [];
 $result = $link->query($query);
@@ -41,7 +41,7 @@ mysqli_close($link);
     <div class="container">
         <div class="col-lg-5 text-left">
             <h4 class="my-4"><?= htmlspecialchars($_SESSION["username"]); ?></h4>
-            <a href="./logout.php" class="btn btn-primary">Log Out</a>
+            <a href="../logout.php" class="btn btn-primary">Log Out</a>
             <a href="../" class="btn btn-success">Back </a>
             <a href="../sent-tenders/" class="btn btn-primary">Sent Tender</a>
             <a href="../alot-tenders/" class="btn btn-primary">Alot Tender</a>
@@ -65,7 +65,7 @@ mysqli_close($link);
                                         <td>Username</td>
                                         <td>Email</td>
                                         <td>Department Name</td>
-                                        <td>Due Date</td>
+                                        <!-- <td>Due Date</td> -->
                                         <td>Request Created On</td>
                                         <td>Action</td>
                                     </tr>
@@ -77,7 +77,7 @@ mysqli_close($link);
                                             <td><?php echo $values[$itemKey]["username"] ?></td>
                                             <td><?php echo $values[$itemKey]["email"] ?></td>
                                             <td><?php echo $values[$itemKey]['departmentName'] ?></td>
-                                            <td><?php echo $values[$itemKey]['due_date'] ?></td>
+                                            <!-- <td><?php echo $values[$itemKey]['due_date'] ?></td> -->
                                             <td><?php echo $values[$itemKey]['created_at'] ?></td>
                                             <td width="15%">
                                                 <a href="./update.php?id=<?php echo $values[$itemKey]["id"]; ?>" class="btn btn-success"> <i class="fa fa-edit"></i> Update File</a>

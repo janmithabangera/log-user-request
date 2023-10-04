@@ -34,23 +34,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     # Validate credentials 
     if (!empty($tenderID) && !empty($departmentID)) {
 
-        $validtenderID = "SELECT * FROM tenders WHERE tenderID = ? and department_id=?";
-        $validtenderIDstmt = $link->prepare($validtenderID);
-        $validtenderIDstmt->bind_param("si", $tenderID, $departmentID);
-        if ($validtenderIDstmt->execute()) {
-            $tenderIDRes = $validtenderIDstmt->get_result()->fetch_assoc();
-            if ($tenderIDRes == null) {
-                $formError = "Enter valid TenderID/Select valid department";
-            } else {
+        $validDepartmentID = "SELECT * FROM department WHERE id=?";
+        $validDepartmentIDstmt = $link->prepare($validDepartmentID);
+        $validDepartmentIDstmt->bind_param("i",  $departmentID);
+        if ($validDepartmentIDstmt->execute()) {
+            $departmentIDRes = $validDepartmentIDstmt->get_result()->fetch_assoc();
                 $userID = $_SESSION["id"];
-                $sql = "INSERT INTO user_tender_requests (user_id, tender_id,status) VALUES (?, ?,'Requested')";
+                $sql = "INSERT INTO user_tender_requests (user_id, tenderID,status,department_id) VALUES (?, ?,'Requested',?)";
                 $stmt = $link->prepare($sql);
-                $stmt->bind_param("ss", $userID, $tenderIDRes['id']);
+                $stmt->bind_param("sss", $userID, $tenderID,$departmentIDRes['id']);
                 if ($stmt->execute()) {
                     echo "<script>" . "window.location.href='./tender-requests/';" . "</script>";
                 }
                 echo "<script>" . "alert('Oops! Something went wrong. Please try again later.');" . "</script>";
-            }
         }
     }
     # Close connection

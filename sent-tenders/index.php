@@ -10,11 +10,11 @@ if (!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== TRUE) {
 }
 
 #query to get sent requests
-$query = "SELECT users.username, department.name as departmentName, tenders.tenderID, tenders.due_date, user_tender_requests.created_at, 
+$query = "SELECT users.username, department.name as departmentName, user_tender_requests.tenderID, user_tender_requests.created_at, 
 user_tender_requests.id, user_tender_requests.tender_No, user_tender_requests.file_name, user_tender_requests.name_of_work, 
 user_tender_requests.sent_at FROM `user_tender_requests` inner join `users` on 
-user_tender_requests.user_id = users.id inner join `tenders` on user_tender_requests.tender_id = tenders.id inner join `department` on 
-tenders.department_id = department.id where user_tender_requests.status= 'Sent';";
+user_tender_requests.user_id = users.id inner join `department` on 
+user_tender_requests.department_id = department.id where user_tender_requests.status= 'Sent';";
 
 $data = [];
 $result = $link->query($query);
@@ -43,7 +43,7 @@ mysqli_close($link);
     <div class="container">
         <div class="col-lg-5 text-left">
             <h4 class="my-4"><?= htmlspecialchars($_SESSION["username"]); ?></h4>
-            <a href="./logout.php" class="btn btn-primary">Log Out</a>
+            <a href="../logout.php" class="btn btn-primary">Log Out</a>
             <a href="../tender-requests/" class="btn btn-primary">All User Tender Requests</a>
             <a href="../sent-tenders/" class="btn btn-success">Sent Tender</a>
             <a href="../alot-tenders/" class="btn btn-primary">Alot Tender</a>
@@ -69,7 +69,7 @@ mysqli_close($link);
                                         <td>Tender No</td>
                                         <td>Department Name</td>
                                         <td>Work Name</td>
-                                        <td>Due Date</td>
+                                        <!-- <td>Due Date</td> -->
                                         <td>Created On</td>
                                         <td>Sent On</td>
                                         <td>Action</td>
@@ -83,7 +83,7 @@ mysqli_close($link);
                                             <td><?php echo $values[$itemKey]["tender_No"] ?></td>
                                             <td><?php echo $values[$itemKey]['departmentName'] ?></td>
                                             <td><?php echo $values[$itemKey]['name_of_work'] ?></td>
-                                            <td><?php echo $values[$itemKey]['due_date'] ?></td>
+                                            <!-- <td><?php echo $values[$itemKey]['due_date'] ?></td> -->
                                             <td><?php echo $values[$itemKey]['created_at'] ?></td>
                                             <td><?php echo $values[$itemKey]['sent_at'] . " (" . $values[$itemKey]["username"] . ")" ?>
                                                 <a href="../uploadedFiles/<?php echo $values[$itemKey]['file_name'] ?>" target="_blank">View file</a>

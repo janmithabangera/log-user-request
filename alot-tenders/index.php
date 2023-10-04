@@ -10,13 +10,12 @@ if (!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== TRUE) {
 }
 
 #query to get all allotted tender requests
-$query = "SELECT us.username,s.username as selectedUser, department.name as departmentName, tenders.tenderID, 
+$query = "SELECT us.username,s.username as selectedUser, department.name as departmentName, ur.tenderID, 
 ur.id, ur.reference_code, ur.tender_No, ur.file_name, ur.allotted_at, ur.name_of_work, ur.reminder_days
 FROM user_tender_requests ur
 left join users us on ur.user_id= us.id 
 left join users s on ur.edit_user_id= s.id
-inner join `tenders` on ur.tender_id = tenders.id 
-inner join `department` on tenders.department_id = department.id 
+inner join `department` on ur.department_id = department.id 
 where ur.status= 'Allotted';";
 
 $data = [];
@@ -43,7 +42,7 @@ mysqli_close($link);
     <div class="container">
         <div class="col-lg-5 text-left">
             <h4 class="my-4"><?= htmlspecialchars($_SESSION["username"]); ?></h4>
-            <a href="./logout.php" class="btn btn-primary">Log Out</a>
+            <a href="../logout.php" class="btn btn-primary">Log Out</a>
             <a href="../tender-requests/" class="btn btn-primary">All User Tender Requests</a>
             <a href="../sent-tenders/" class="btn btn-primary">Sent Tender</a>
             <a href="../alot-tenders/" class="btn btn-success">Alot Tender</a>
